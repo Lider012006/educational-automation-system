@@ -52,6 +52,8 @@ function CourseFormPage() {
         ? `http://localhost:8000/api/courses/${id}/`
         : 'http://localhost:8000/api/courses/';
 
+      console.log('Отправляю запрос:', { method, url, formData });
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -60,8 +62,14 @@ function CourseFormPage() {
         body: JSON.stringify(formData),
       });
 
+      console.log('Ответ статус:', response.status);
+
+      const responseData = await response.json();
+      console.log('Ответ данные:', responseData);
+
       if (!response.ok) {
-        throw new Error('Ошибка при сохранении курса');
+        const errorMsg = responseData.detail || responseData.message || JSON.stringify(responseData);
+        throw new Error(errorMsg);
       }
 
       setSuccess(true);
@@ -70,7 +78,7 @@ function CourseFormPage() {
       }, 1500);
     } catch (err) {
       console.error('Ошибка:', err);
-      setError(err.message);
+      setError(err.message || 'Ошибка при сохранении курса');
     }
   };
 
