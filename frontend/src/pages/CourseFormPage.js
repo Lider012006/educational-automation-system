@@ -12,6 +12,18 @@ function CourseFormPage() {
   const [loading, setLoading] = useState(id ? true : false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [csrfToken, setCsrfToken] = useState('');
+
+  // Получить CSRF токен
+  useEffect(() => {
+    fetch('http://localhost:8000/api/csrf/')
+      .then(res => res.json())
+      .then(data => {
+        console.log('CSRF токен получен:', data.csrfToken);
+        setCsrfToken(data.csrfToken);
+      })
+      .catch(err => console.error('Ошибка при получении CSRF:', err));
+  }, []);
 
   // Загрузить данные курса если редактируем
   useEffect(() => {
@@ -52,12 +64,13 @@ function CourseFormPage() {
         ? `http://localhost:8000/api/courses/${id}/`
         : 'http://localhost:8000/api/courses/';
 
-      console.log('Отправляю запрос:', { method, url, formData });
+      console.log('Отправляю запрос:', { method, url, formData, csrfToken });
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify(formData),
       });
