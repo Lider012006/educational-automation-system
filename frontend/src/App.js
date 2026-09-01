@@ -1,25 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import HomePage from './pages/HomePage';
+import CourseDetailPage from './pages/CourseDetailPage';
 
 function App() {
-  const [courses, setCourses] = useState([]);
-
-  useEffect(() => {
-    fetch('http://localhost:8000/api/courses/')
-      .then(res => res.json())
-      .then(data => setCourses(data))
-      .catch(err => console.error('Ошибка:', err));
-  }, []);
-
   return (
-    <div className="App">
-      <h1>Курсы</h1>
-      <ul>
-        {courses.map(course => (
-          <li key={course.id}>{course.title}</li>
-        ))}
-      </ul>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/courses/:id" element={<CourseDetailPage />} />
+      </Routes>
+    </Router>
   );
 }
 
