@@ -8,11 +8,13 @@ function CourseFormPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    teacher: '',
   });
   const [loading, setLoading] = useState(id ? true : false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [csrfToken, setCsrfToken] = useState('');
+  const [teachers, setTeachers] = useState([]);
 
   // Получить CSRF токен
   useEffect(() => {
@@ -25,6 +27,16 @@ function CourseFormPage() {
       .catch(err => console.error('Ошибка при получении CSRF:', err));
   }, []);
 
+  // Загрузить список преподавателей
+  useEffect(() => {
+    fetch('http://localhost:8000/api/users/')
+      .then(res => res.json())
+      .then(data => {
+        setTeachers(data);
+      })
+      .catch(err => console.error('Ошибка при загрузке преподавателей:', err));
+  }, []);
+
   // Загрузить данные курса если редактируем
   useEffect(() => {
     if (id) {
@@ -34,6 +46,7 @@ function CourseFormPage() {
           setFormData({
             title: data.title,
             description: data.description,
+            teacher: data.teacher,
           });
           setLoading(false);
         })
@@ -133,6 +146,24 @@ function CourseFormPage() {
                 rows="5"
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="teacher">Преподаватель *</label>
+              <select
+                id="teacher"
+                name="teacher"
+                value={formData.teacher}
+                onChange={handleChange}
+                required
+              >
+                <option value="">-- Выберите преподавателя --</option>
+                {teachers.map(teacher => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.first_name} {teacher.last_name} ({teacher.username})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="form-actions">
