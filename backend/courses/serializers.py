@@ -8,7 +8,11 @@ class LessonSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(serializers.ModelSerializer):
     lessons = LessonSerializer(many=True, read_only=True)
-    
+    teacher = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Course
         fields = '__all__'
+        extra_kwargs = {
+            'teacher': {'read_only': True}
+        }
