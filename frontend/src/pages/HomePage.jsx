@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config';
 import '../styles/HomePage.css';
 
 function HomePage() {
@@ -12,7 +13,7 @@ function HomePage() {
   }, []);
 
   const loadCourses = () => {
-    fetch('http://localhost:8000/api/courses/')
+    fetch(`${API_URL}/api/courses/`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setCourses(data);
@@ -27,8 +28,9 @@ function HomePage() {
 
   const handleDelete = (id) => {
     if (window.confirm('Вы уверены, что хотите удалить этот курс?')) {
-      fetch(`http://localhost:8000/api/courses/${id}/`, {
+      fetch(`${API_URL}/api/courses/${id}/`, {
         method: 'DELETE',
+        credentials: 'include',
       })
         .then(() => {
           setCourses(courses.filter(course => course.id !== id));
@@ -52,7 +54,7 @@ function HomePage() {
             ➕ Новый курс
           </Link>
         </div>
-        
+
         {courses.length === 0 ? (
           <p className="no-courses">Курсов пока нет. <Link to="/courses/new">Создайте первый курс!</Link></p>
         ) : (
@@ -74,8 +76,8 @@ function HomePage() {
                   <Link to={`/courses/${course.id}/edit`} className="btn-edit">
                     ✏️ Редактировать
                   </Link>
-                  <button 
-                    onClick={() => handleDelete(course.id)} 
+                  <button
+                    onClick={() => handleDelete(course.id)}
                     className="btn-delete"
                   >
                     🗑️ Удалить

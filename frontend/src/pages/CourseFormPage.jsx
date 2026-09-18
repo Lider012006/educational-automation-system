@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { API_URL } from '../config';
 import '../styles/CourseFormPage.css';
 
 function CourseFormPage() {
@@ -16,20 +17,17 @@ function CourseFormPage() {
   const [csrfToken, setCsrfToken] = useState('');
   const [teachers, setTeachers] = useState([]);
 
-  // Получить CSRF токен
   useEffect(() => {
-    fetch('http://localhost:8000/api/csrf/')
+    fetch(`${API_URL}/api/csrf/`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        console.log('CSRF токен получен:', data.csrfToken);
         setCsrfToken(data.csrfToken);
       })
       .catch(err => console.error('Ошибка при получении CSRF:', err));
   }, []);
 
-  // Загрузить список преподавателей
   useEffect(() => {
-    fetch('http://localhost:8000/api/users/')
+    fetch(`${API_URL}/api/users/`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         setTeachers(data);
@@ -37,10 +35,9 @@ function CourseFormPage() {
       .catch(err => console.error('Ошибка при загрузке преподавателей:', err));
   }, []);
 
-  // Загрузить данные курса если редактируем
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:8000/api/courses/${id}/`)
+      fetch(`${API_URL}/api/courses/${id}/`, { credentials: 'include' })
         .then(res => res.json())
         .then(data => {
           setFormData({
@@ -73,14 +70,13 @@ function CourseFormPage() {
 
     try {
       const method = id ? 'PUT' : 'POST';
-      const url = id 
-        ? `http://localhost:8000/api/courses/${id}/`
-        : 'http://localhost:8000/api/courses/';
-
-      console.log('Отправляю запрос:', { method, url, formData, csrfToken });
+      const url = id
+        ? `${API_URL}/api/courses/${id}/`
+        : `${API_URL}/api/courses/`;
 
       const response = await fetch(url, {
         method,
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRFToken': csrfToken,
@@ -88,10 +84,7 @@ function CourseFormPage() {
         body: JSON.stringify(formData),
       });
 
-      console.log('Ответ статус:', response.status);
-
       const responseData = await response.json();
-      console.log('Ответ данные:', responseData);
 
       if (!response.ok) {
         const errorMsg = responseData.detail || responseData.message || JSON.stringify(responseData);
@@ -114,13 +107,13 @@ function CourseFormPage() {
     <div className="form-page">
       <div className="container">
         <Link to="/" className="back-button">← Вернуться к курсам</Link>
-        
+
         <div className="form-container">
           <h1>{id ? '✏️ Редактировать курс' : '➕ Создать новый курс'}</h1>
-          
+
           {error && <div className="error-message">❌ {error}</div>}
           {success && <div className="success-message">✅ Курс успешно сохранён!</div>}
-          
+
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="title">Название курса *</label>
